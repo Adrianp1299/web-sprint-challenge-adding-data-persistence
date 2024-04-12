@@ -5,7 +5,17 @@ const Project = require('./model')
 router.get('/', (req, res, next) => {
     Project.find()
     .then(resource => {
-        res.status(200).json(resource)
+        res.status(200).json(resource.map((project) => {
+            if (project.project_completed === 0){
+                return {
+                    ...project, project_completed: false
+                }
+            } else {
+                return {
+                    ...project, project_completed: true
+                }
+            }
+        }))
     })
     .catch(next)
 })
@@ -14,7 +24,25 @@ router.post('/', (req, res, next) => {
     const project = req.body 
     Project.add(project)
         .then(project => {
-            res.status(201).json(project)
+            if (project.project_completed===0) {
+                res.status(201).json( 
+                    {
+                        'project_id': project.project_id,
+                        'project_name': project.project_name,
+                        'project_description': project.project_description,
+                        'project_completed': false
+                    }
+                )
+            } else {
+                res.status(201).json( 
+                    {
+                        'project_id': project.project_id,
+                        'project_name': project.project_name,
+                        'project_description': project.project_description,
+                        'project_completed': true
+                    }
+                )
+            }
         })
         .catch(next)
 })
